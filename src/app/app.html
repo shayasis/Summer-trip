@@ -1,0 +1,214 @@
+<header class="hero">
+  <img class="hero-img" src="img/hero.jpg" alt="אגם צל ליד קפרון" />
+  <div class="hero-shade"></div>
+  <div class="wrap hero-in">
+    <div class="eyebrow">3–12 באוגוסט 2027 · זלצבורגרלנד, אוסטריה</div>
+    <h1>פלאכו וקפרון</h1>
+    <p class="hero-sub">טיול הקיץ של 3 המשפחות</p>
+    <div class="facts">
+      <span><b>12</b> אנשים</span>
+      <span><b>6</b> ילדים · 7–9</span>
+      <span><b>3</b> רכבים</span>
+      <span><b>9</b> לילות</span>
+    </div>
+    @if (todayN()) {
+      <a class="countdown live" [href]="'#d' + todayN()">אנחנו בטיול! היום: יום {{ todayN() }} ←</a>
+    } @else if (daysToGo() > 0) {
+      <div class="countdown"><b>{{ daysToGo() }}</b> ימים לטיסה</div>
+    }
+  </div>
+</header>
+
+<nav class="daynav" aria-label="ימי הטיול">
+  <div class="wrap daynav-in">
+    <a href="#trip">טיסות ומלונות</a>
+    @for (d of days; track d.n) {
+      <a [href]="'#d' + d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n">
+        <span class="dn">{{ d.n }}</span>{{ d.date }}
+      </a>
+    }
+    <a href="#weather">מזג אוויר</a>
+    <a href="#checklist">צ'קליסט</a>
+  </div>
+</nav>
+
+<main>
+  <!-- Flights + hotels -->
+  <section class="wrap block" id="trip">
+    <h2>טיסות</h2>
+    <div class="flights">
+      @for (f of flights; track f.number) {
+        <article class="ticket">
+          <div class="ticket-top">
+            <span class="fno">{{ f.number }}</span>
+            <span class="fdate">{{ f.date }}</span>
+          </div>
+          <div class="leg">
+            <div class="ap">
+              <div class="code">{{ f.from.code }}</div>
+              <div class="city">{{ f.from.city }}</div>
+              <div class="time">{{ f.from.time }}</div>
+              <div class="term">טרמינל {{ f.from.terminal }}</div>
+            </div>
+            <div class="path" aria-hidden="true">
+              <span class="line"></span>
+              <svg viewBox="0 0 24 24" class="plane"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+              <span class="dur">{{ f.duration }}</span>
+            </div>
+            <div class="ap">
+              <div class="code">{{ f.to.code }}</div>
+              <div class="city">{{ f.to.city }}</div>
+              <div class="time">{{ f.to.time }}@if (f.to.nextDay) {<sup>+1</sup>}</div>
+              <div class="term">טרמינל {{ f.to.terminal }}</div>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+
+    <h2 class="mt">מלונות</h2>
+    <div class="hotels">
+      @for (h of hotels; track h.name) {
+        <article class="hotel" [class.k]="h.base === 'kaprun'">
+          <div class="hotel-town">{{ h.town }} · {{ h.nights }} לילות</div>
+          <h3>{{ h.name }}</h3>
+          <div class="stay">
+            <div><span class="lbl">צ'ק-אין</span><b>{{ h.checkIn }}</b></div>
+            <div><span class="lbl">צ'ק-אאוט</span><b>{{ h.checkOut }}</b></div>
+          </div>
+          <a class="maplink" [href]="mapUrl(h.mapQuery)" target="_blank" rel="noopener">פתיחה במפות ←</a>
+        </article>
+      }
+    </div>
+
+    <div class="changes">
+      <button type="button" (click)="changesOpen.set(!changesOpen())" [attr.aria-expanded]="changesOpen()">
+        מה השתנה לעומת הגרסה הקודמת <span class="chev" [class.open]="changesOpen()">▾</span>
+      </button>
+      @if (changesOpen()) {
+        <ul>
+          @for (c of changes; track c) { <li>{{ c }}</li> }
+        </ul>
+      }
+    </div>
+  </section>
+
+  <section class="base f" id="flachau">
+    <div class="wrap">
+      <div class="base-head">
+        <span class="base-tag">חלק 1</span>
+        <h2>בסיס בפלאכו</h2>
+        <span class="base-meta">3.8–7.8 · 4 לילות · {{ hotels[0].name }}</span>
+      </div>
+      <div class="days">
+        @for (d of flachauDays; track d.n) {
+          <ng-container *ngTemplateOutlet="dayCard; context: { $implicit: d }" />
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="base k" id="kaprun">
+    <div class="wrap">
+      <div class="base-head">
+        <span class="base-tag">חלק 2</span>
+        <h2>בסיס בקפרון</h2>
+        <span class="base-meta">7.8–12.8 · 5 לילות · Carpe Solem Kaprun</span>
+      </div>
+      <div class="days">
+        @for (d of kaprunDays; track d.n) {
+          <ng-container *ngTemplateOutlet="dayCard; context: { $implicit: d }" />
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap block" id="weather">
+    <h2>תוכנית גיבוי למזג אוויר</h2>
+    <p class="lead">בודקים תחזית כל ערב, ומזיזים ימי הרים לימים הבהירים ביותר.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>יום</th><th>צריך מזג אוויר טוב?</th><th>מה עושים אם יורד גשם</th></tr></thead>
+        <tbody>
+          @for (r of weatherRows; track r.day) {
+            <tr>
+              <td><a [href]="'#d' + r.day">{{ r.day }} – {{ r.name }}</a></td>
+              <td><span class="tag" [class]="'tag t-' + r.level">{{ r.need }}</span></td>
+              <td>{{ r.plan }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="small">יום גשום בקפרון בלי אפשרות להחלפה: בריכה מקורה באזור היא אפשרות טובה.</p>
+  </section>
+
+  <section class="wrap block" id="checklist">
+    <div class="check-head">
+      <h2>צ'קליסט הזמנות והכנות</h2>
+      <span class="progress">{{ doneCount() }} מתוך {{ checklist.length }}</span>
+    </div>
+    <div class="bar"><span [style.width.%]="(doneCount() / checklist.length) * 100"></span></div>
+    <ul class="checklist">
+      @for (c of checklist; track c.id) {
+        <li>
+          <label [for]="'c-' + c.id">
+            <input type="checkbox" [id]="'c-' + c.id" [checked]="!!checked()[c.id]" (change)="toggle(c.id)" />
+            <span>{{ c.text }}</span>
+          </label>
+        </li>
+      }
+    </ul>
+    <p class="small">הסימונים נשמרים בדפדפן שלך בלבד.</p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>נסיעה טובה!</p>
+  @if (creditList().length) {
+    <details>
+      <summary>קרדיט לתמונות (Wikimedia Commons)</summary>
+      <ul dir="ltr">
+        @for (c of creditList(); track c.url) {
+          <li><a [href]="c.url" target="_blank" rel="noopener">{{ c.title }}</a> · {{ c.author }} · {{ c.license }}</li>
+        }
+      </ul>
+    </details>
+  }
+</footer>
+
+<ng-template #dayCard let-d>
+  <article class="day" [id]="'d' + d.n" [class.today]="todayN() === d.n">
+    <div class="photo">
+      <img [src]="d.image" [alt]="d.place" loading="lazy" />
+      <div class="photo-shade"></div>
+      <div class="date-badge">
+        <span class="wd">{{ d.weekday }}</span>
+        <span class="dd">{{ d.date }}</span>
+      </div>
+      <div class="photo-text">
+        <span class="daynum">יום {{ d.n }} · {{ d.place }}</span>
+        <h3>{{ d.title }}</h3>
+      </div>
+    </div>
+    <div class="day-body">
+      @if (d.weather || d.flexible) {
+        <div class="tags">
+          @if (d.weather) { <span class="tag" [class]="'tag t-' + d.weather.level">{{ d.weather.label }}</span> }
+          @if (d.flexible) { <span class="tag t-flex">יום הרים גמיש</span> }
+        </div>
+      }
+      <ol class="slots">
+        @for (s of d.slots; track $index) {
+          <li>
+            <span class="when">{{ s.when }}</span>
+            <span class="what">{{ s.what }}@if (s.note) {<span class="note">{{ s.note }}</span>}</span>
+          </li>
+        }
+      </ol>
+      @if (d.tip) {
+        <div class="tip"><b>{{ d.tip.label }}:</b> {{ d.tip.text }}</div>
+      }
+    </div>
+  </article>
+</ng-template>

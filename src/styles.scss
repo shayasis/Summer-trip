@@ -1,0 +1,60 @@
+/* Alpine palette: glacier-white ground, pine for Flachau, lake teal for Kaprun. */
+:root {
+  --bg: #f2f6f7;
+  --surface: #ffffff;
+  --ink: #15302b;
+  --muted: #5b716c;
+  --line: #d5e1e1;
+  --pine: #2f6b3f;
+  --pine-soft: #e1eee3;
+  --lake: #0e7a85;
+  --lake-soft: #d9eff0;
+  --sun: #a86100;
+  --sun-soft: #fbeed6;
+  --snow: #3a59a8;
+  --snow-soft: #e3e9f7;
+  --danger: #b3261e;
+  --danger-soft: #fbe3e1;
+  --on-photo: #ffffff;
+  --font-display: 'Secular One', 'Assistant', system-ui, sans-serif;
+  --font-body: 'Assistant', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  color-scheme: light;
+}
+@mixin dark {
+  --bg: #0d1918;
+  --surface: #152523;
+  --ink: #e2eeec;
+  --muted: #9cb2ad;
+  --line: #27413f;
+  --pine: #7cc48b;
+  --pine-soft: #1b3623;
+  --lake: #4cc3cc;
+  --lake-soft: #163a3c;
+  --sun: #f0b35a;
+  --sun-soft: #3a2b13;
+  --snow: #9fb6f0;
+  --snow-soft: #1f2a45;
+  --danger: #f28b82;
+  --danger-soft: #3e1d1b;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { @include dark; }
+}
+:root[data-theme='dark'] { @include dark; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 4rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.2; margin: 0; text-wrap: balance; }
+a { color: var(--lake); }
+img { max-width: 100%; }
+:focus-visible { outline: 3px solid var(--lake); outline-offset: 2px; border-radius: 4px; }
