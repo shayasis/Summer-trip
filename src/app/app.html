@@ -5,7 +5,7 @@
       <h1>פלאכו וקפרון</h1>
     </div>
     @if (todayN()) {
-      <button type="button" class="pill live" (click)="pick(todayN()); go('days')">היום: יום {{ todayN() }}</button>
+      <button type="button" class="pill live" (click)="pick(todayN())">היום: יום {{ todayN() }}</button>
     } @else if (daysToGo() > 0) {
       <div class="pill"><b>{{ daysToGo() }}</b> ימים לטיסה</div>
     }
@@ -15,63 +15,72 @@
 <main class="screen">
   @switch (tab()) {
     @case ('days') {
-      <nav class="chips" aria-label="בחירת יום">
+      <section class="map" aria-label="המסלול">
+        <svg viewBox="0 0 640 210" role="img" aria-label="מינכן, פלאכו 4 לילות, קפרון 5 לילות, ובחזרה למינכן">
+          <path class="mtn2" d="M0 210 L40 150 L110 175 L160 120 L230 170 L290 110 L360 175 L420 130 L500 170 L560 140 L640 180 L640 210Z"/>
+          <path class="mtn" d="M0 210 L70 120 L120 160 L190 70 L250 140 L320 60 L390 150 L450 90 L520 150 L580 100 L640 160 L640 210Z"/>
+          <path class="snow" d="M190 70 L172 93 L190 88 L205 96Z M320 60 L302 84 L320 78 L338 86Z M450 90 L436 108 L452 104 L464 110Z"/>
+          <path class="route" d="M590 60 C 520 40, 470 150, 400 140 S 260 170, 220 120 S 120 40, 50 60"/>
+          <g class="pin" transform="translate(590 60)"><circle r="9"/><text y="-16">מינכן</text></g>
+          <g class="pin p1" transform="translate(400 140)"><circle r="12"/><text y="-20">פלאכו</text><text class="s" y="34">4 לילות</text></g>
+          <g class="pin p2" transform="translate(220 120)"><circle r="12"/><text y="-20">קפרון</text><text class="s" y="34">5 לילות</text></g>
+          <g class="pin" transform="translate(50 60)"><circle r="9"/><text y="-16">מינכן</text></g>
+        </svg>
+      </section>
+
+      <nav class="chips" aria-label="קפיצה ליום">
         @for (d of days; track d.n) {
           <button type="button" class="chip" [id]="'chip' + d.n"
                   [class.on]="dayN() === d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n"
-                  (click)="pick(d.n)" [attr.aria-pressed]="dayN() === d.n">
+                  (click)="pick(d.n)">
             <span class="c-wd">{{ d.weekday }}</span>
             <span class="c-d">{{ d.date }}</span>
           </button>
         }
       </nav>
 
-      @let d = day();
-      <article class="day" [class.k]="d.base === 'kaprun'" (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
-        <div class="photo">
-          @for (x of [d]; track x.n) { <img [src]="x.image" [alt]="x.place" /> }
-          <div class="shade"></div>
-          <div class="ph-top">
-            <span class="base-badge">{{ d.base === 'flachau' ? 'בסיס פלאכו' : 'בסיס קפרון' }}</span>
-            <span class="dayno">יום {{ d.n }}/10</span>
-          </div>
-          <div class="ph-text">
-            <div class="place">{{ d.place }}</div>
-            <h2>{{ d.title }}</h2>
-          </div>
-        </div>
-
-        @if (d.weather || d.flexible) {
-          <div class="tags">
-            @if (d.weather) { <span [class]="'tag t-' + d.weather.level">{{ d.weather.label }}</span> }
-            @if (d.flexible) { <span class="tag t-flex">יום הרים גמיש</span> }
-          </div>
+      @for (d of days; track d.n) {
+        @if (d.n === 1 || d.n === 5) {
+          <h2 class="base-h" [class.k]="d.n === 5">{{ d.n === 1 ? 'בסיס בפלאכו · 3.8–7.8' : 'בסיס בקפרון · 7.8–12.8' }}</h2>
         }
+        <article class="day" [id]="'day' + d.n" [attr.data-n]="d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n">
+          <div class="photo">
+            <img [src]="d.image" [alt]="d.place" loading="lazy" />
+            <div class="shade"></div>
+            <div class="ph-top">
+              <span class="date-pill"><b>{{ d.date }}</b> {{ d.weekday }}</span>
+              <span class="dayno">יום {{ d.n }}/10</span>
+            </div>
+            <div class="ph-text">
+              <div class="place">{{ d.place }}</div>
+              <h2>{{ d.title }}</h2>
+            </div>
+          </div>
 
-        <ol class="tl">
-          @for (s of d.slots; track $index) {
-            <li>
-              <span class="when">{{ s.when }}</span>
-              <div class="what">
-                {{ s.what }}
-                @if (s.note) { <span class="note">{{ s.note }}</span> }
-              </div>
-            </li>
+          @if (d.weather || d.flexible) {
+            <div class="tags">
+              @if (d.weather) { <span [class]="'tag t-' + d.weather.level">{{ d.weather.label }}</span> }
+              @if (d.flexible) { <span class="tag t-flex">יום הרים גמיש</span> }
+            </div>
           }
-        </ol>
 
-        @if (d.tip) {
-          <div class="tip"><b>{{ d.tip.label }}</b>{{ d.tip.text }}</div>
-        }
+          <ol class="tl">
+            @for (s of d.slots; track $index) {
+              <li>
+                <span class="when">{{ s.when }}</span>
+                <div class="what">
+                  {{ s.what }}
+                  @if (s.note) { <span class="note">{{ s.note }}</span> }
+                </div>
+              </li>
+            }
+          </ol>
 
-        <div class="pager">
-          <button type="button" (click)="pick(d.n - 1)" [disabled]="d.n === 1">→ יום {{ d.n - 1 || '' }}</button>
-          <span class="dots" aria-hidden="true">
-            @for (x of days; track x.n) { <i [class.on]="x.n === d.n"></i> }
-          </span>
-          <button type="button" (click)="pick(d.n + 1)" [disabled]="d.n === 10">יום {{ d.n < 10 ? d.n + 1 : '' }} ←</button>
-        </div>
-      </article>
+          @if (d.tip) {
+            <div class="tip"><b>{{ d.tip.label }}</b>{{ d.tip.text }}</div>
+          }
+        </article>
+      }
     }
 
     @case ('travel') {
@@ -171,7 +180,7 @@
       <h2 class="sec">גיבוי למזג אוויר</h2>
       <p class="muted">בודקים תחזית כל ערב ומזיזים ימי הרים לימים הבהירים.</p>
       @for (r of weatherRows; track r.day) {
-        <button type="button" class="card wx" (click)="pick(r.day); go('days')">
+        <button type="button" class="card wx" (click)="pick(r.day)">
           <span class="wx-day">{{ r.day }}</span>
           <span class="wx-body">
             <b>{{ r.name }}</b>

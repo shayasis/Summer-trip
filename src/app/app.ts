@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { afterNextRender, Component, computed, effect, signal } from '@angular/core';
 import {
   CAR, CHECKLIST, DAYS, DEPARTURE, FLIGHTS, HOTELS, WEATHER_ROWS,
 } from './trip-data';
@@ -13,7 +13,7 @@ const TABS: Tab[] = ['days', 'travel', 'car', 'prep'];
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
-  host: { '(window:hashchange)': 'readHash()' },
+  host: { '(window:hashchange)': 'readHash(true)' },
 })
 export class App {
   protected readonly flights = FLIGHTS;
@@ -36,7 +36,6 @@ export class App {
 
   protected readonly tab = signal<Tab>('days');
   protected readonly dayN = signal(this.todayN() || 1);
-  protected readonly day = computed(() => this.days[this.dayN() - 1]);
 
   protected readonly checked = signal<Record<string, boolean>>(this.load());
   protected readonly doneCount = computed(
@@ -44,11 +43,23 @@ export class App {
   );
   protected readonly credits = signal<Credit[]>([]);
 
-  private touchX = 0;
-  private touchY = 0;
+  private observer?: IntersectionObserver;
 
   constructor() {
-    this.readHash();
+    this.readHash(false);
+    afterNextRender(() => {
+      const top = document.querySelector('.top') as HTMLElement | null;
+      const setTop = () => top && document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
+      setTop();
+      window.addEventListener('resize', setTop);
+      this.watchDays();
+      const n = this.dayN();
+      if (this.tab() === 'days' && (location.hash.startsWith('#day') || this.todayN())) this.scrollToDay(n, 'auto');
+    });
+    // Re-attach the observer whenever the days tab is shown again.
+    effect(() => {
+      if (this.tab() === 'days') setTimeout(() => this.watchDays());
+    });
     setInterval(() => this.now.set(Date.now()), 60 * 60 * 1000);
     fetch('img/credits.json')
       .then((r) => (r.ok ? r.json() : {}))
@@ -56,12 +67,13 @@ export class App {
       .catch(() => {});
   }
 
-  protected readHash() {
+  protected readHash(scroll: boolean) {
     const h = location.hash.replace('#', '');
     const m = /^day(\d+)$/.exec(h);
     if (m && +m[1] >= 1 && +m[1] <= 10) {
       this.tab.set('days');
       this.dayN.set(+m[1]);
+      if (scroll) setTimeout(() => this.scrollToDay(+m[1]));
     } else if ((TABS as string[]).includes(h)) {
       this.tab.set(h as Tab);
     }
@@ -69,28 +81,48 @@ export class App {
 
   protected go(t: Tab) {
     this.tab.set(t);
-    this.setHash(t === 'days' ? 'day' + this.dayN() : t);
+    this.setHash(t === 'days' ? '' : t);
     window.scrollTo({ top: 0 });
   }
 
+  /** Jump to a day in the scrolling list (switching to the days tab if needed). */
   protected pick(n: number) {
     if (n < 1 || n > 10) return;
     this.dayN.set(n);
-    this.setHash('day' + n);
-    document.getElementById('chip' + n)?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    if (this.tab() !== 'days') {
+      this.tab.set('days');
+      setTimeout(() => this.scrollToDay(n));
+    } else {
+      this.scrollToDay(n);
+    }
   }
 
-  protected touchStart(e: TouchEvent) {
-    this.touchX = e.touches[0].clientX;
-    this.touchY = e.touches[0].clientY;
+  private scrollToDay(n: number, behavior: ScrollBehavior = 'smooth') {
+    const el = document.getElementById('day' + n);
+    if (!el) return;
+    const offset = (document.querySelector('.top') as HTMLElement)?.offsetHeight ?? 0;
+    const chips = (document.querySelector('.chips') as HTMLElement)?.offsetHeight ?? 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset - chips - 8, behavior });
   }
 
-  /** RTL: swiping left reveals the next day, swiping right the previous one. */
-  protected touchEnd(e: TouchEvent) {
-    const dx = e.changedTouches[0].clientX - this.touchX;
-    const dy = e.changedTouches[0].clientY - this.touchY;
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    this.pick(this.dayN() + (dx > 0 ? 1 : -1));
+  /** Highlight the chip of the day currently on screen. */
+  private watchDays() {
+    this.observer?.disconnect();
+    if (typeof IntersectionObserver === 'undefined') return;
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const n = Number((e.target as HTMLElement).dataset['n']);
+          if (n && n !== this.dayN()) {
+            this.dayN.set(n);
+            document.getElementById('chip' + n)?.scrollIntoView({ inline: 'center', block: 'nearest' });
+          }
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    document.querySelectorAll('article.day').forEach((el) => this.observer!.observe(el));
   }
 
   protected mapUrl(q: string) {
@@ -106,7 +138,7 @@ export class App {
 
   private setHash(h: string) {
     try {
-      history.replaceState(null, '', '#' + h);
+      history.replaceState(null, '', h ? '#' + h : location.pathname + location.search);
     } catch {}
   }
 

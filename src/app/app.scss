@@ -27,6 +27,8 @@
 
 /* ---------- Day chips ---------- */
 .chips {
+  position: sticky; top: var(--top-h, 4.4rem); z-index: 15;
+  background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(12px);
   display: flex; gap: .45rem; overflow-x: auto; scrollbar-width: none;
   margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) .9rem;
   padding: .2rem max(16px, env(safe-area-inset-right, 0px)) .3rem;
@@ -48,8 +50,28 @@
 }
 
 /* ---------- Day card ---------- */
-.day { animation: fade .25s ease; }
-@keyframes fade { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.day { margin-bottom: 2.4rem; scroll-margin-top: 9rem; }
+.day + .day, .base-h + .day { }
+.day.today .photo { outline: 3px solid var(--sun); outline-offset: 3px; }
+.base-h { font-size: 1.35rem; color: var(--pine); margin: 1.6rem 0 .9rem; display: flex; align-items: center; gap: .6rem;
+  &::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  &.k { color: var(--glacier); } }
+.date-pill { font-size: .8rem; font-weight: 700; border-radius: 999px; padding: .15rem .65rem; background: rgba(10, 19, 20, .6); backdrop-filter: blur(6px); color: var(--ink);
+  b { font-family: var(--font-display); font-weight: 400; font-size: .95rem; color: var(--pine); } }
+.day.k .date-pill b { color: var(--glacier); }
+
+/* drawn map */
+.map { margin: .2rem 0 .6rem; }
+.map svg { display: block; width: 100%; height: auto; }
+.map .mtn2 { fill: #183a35; }
+.map .mtn { fill: #2b5a50; }
+.map .snow { fill: #e9f2f0; }
+.map .route { fill: none; stroke: var(--sun); stroke-width: 4; stroke-dasharray: 2 10; stroke-linecap: round; }
+.map .pin circle { fill: var(--bg); stroke: var(--ink); stroke-width: 3; }
+.map .pin.p1 circle { fill: var(--pine); stroke: var(--bg); }
+.map .pin.p2 circle { fill: var(--glacier); stroke: var(--bg); }
+.map .pin text { font-family: var(--font-display); font-size: 19px; fill: var(--ink); text-anchor: middle; }
+.map .pin text.s { font-family: var(--font-body); font-weight: 700; font-size: 13px; fill: var(--ink); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
 .photo {
   position: relative; aspect-ratio: 4 / 3; max-width: 100%;
   border-radius: 22px; overflow: hidden; background: var(--raised);
@@ -57,12 +79,10 @@
 }
 .shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5, 12, 13, .92) 5%, rgba(5, 12, 13, .1) 55%, rgba(5, 12, 13, .35)); }
 .ph-top { position: absolute; inset: .8rem .8rem auto; display: flex; justify-content: space-between; gap: .5rem; }
-.base-badge, .dayno {
+.dayno {
   font-size: .78rem; font-weight: 700; border-radius: 999px; padding: .15rem .65rem;
   background: rgba(10, 19, 20, .6); backdrop-filter: blur(6px); color: var(--ink);
 }
-.base-badge { color: var(--pine); }
-.day.k .base-badge { color: var(--glacier); }
 .ph-text { position: absolute; inset: auto 1rem 1rem; }
 .place { font-size: .85rem; font-weight: 700; color: var(--pine); }
 .day.k .place { color: var(--glacier); }
@@ -95,15 +115,6 @@
   b { display: block; color: var(--sun); font-size: .8rem; letter-spacing: .03em; }
 }
 
-.pager {
-  display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: 1.2rem;
-  button {
-    border: 1px solid var(--line); background: var(--surface); border-radius: 12px;
-    padding: .45rem .8rem; font-weight: 700; font-size: .9rem; cursor: pointer; min-width: 5.5rem;
-    &:disabled { visibility: hidden; }
-  }
-}
-.dots { display: flex; gap: 4px; i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); &.on { background: var(--ink); width: 16px; border-radius: 3px; } } }
 
 /* ---------- Sections ---------- */
 .sec { font-size: 1.35rem; margin: 1.2rem 0 .7rem; }
