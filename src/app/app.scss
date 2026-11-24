@@ -241,3 +241,5 @@
 .wx-day { background: var(--a); color: var(--on-accent); }
 .btn { font-size: .95rem; padding: .5rem 1rem; box-shadow: 0 3px 0 color-mix(in srgb, var(--b) 60%, #000); }
 .tabbar { border-top: 2px solid var(--line); background: #fff; button { font-size: .76rem; } }
+.hotel { padding-top: 0; overflow: hidden; }
+.h-img { display: block; width: calc(100% + 2.1rem); max-width: none; margin: 0 -1.05rem .8rem; aspect-ratio: 16 / 9; object-fit: cover; }

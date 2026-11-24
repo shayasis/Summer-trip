@@ -36,6 +36,7 @@ export interface Hotel {
   checkOut: string;
   nights: number;
   mapQuery: string;
+  image: string;
 }
 
 export const DEPARTURE = new Date('2027-08-03T06:00:00+03:00');
@@ -66,6 +67,7 @@ export const HOTELS: Hotel[] = [
     checkOut: '7.8',
     nights: 4,
     mapQuery: 'Hotel Pongauerhof Flachau',
+    image: 'img/hotel-flachau.jpg',
   },
   {
     base: 'kaprun',
@@ -75,6 +77,7 @@ export const HOTELS: Hotel[] = [
     checkOut: '12.8',
     nights: 5,
     mapQuery: 'Carpe Solem Kaprun Apartments',
+    image: 'img/hotel-kaprun.jpg',
   },
 ];
 

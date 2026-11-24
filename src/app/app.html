@@ -52,6 +52,7 @@
       <h2 class="sec">מלונות</h2>
       @for (h of hotels; track h.name) {
         <article class="card hotel" [class.k]="h.base === 'kaprun'">
+          <img class="h-img" [src]="h.image" [alt]="h.name" loading="lazy" />
           <div class="h-town">{{ h.town }} · {{ h.nights }} לילות</div>
           <h3 dir="ltr">{{ h.name }}</h3>
           <div class="kv">
