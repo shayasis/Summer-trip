@@ -1,4 +1,4 @@
-import { afterNextRender, Component, computed, effect, signal } from '@angular/core';
+import { afterNextRender, Component, computed, signal } from '@angular/core';
 import {
   CAR, CHECKLIST, DAYS, DEPARTURE, FLIGHTS, HOTELS, WEATHER_ROWS,
 } from './trip-data';
@@ -34,7 +34,7 @@ export class App {
     return n >= 1 && n <= 10 ? n : 0;
   });
 
-  protected readonly tab = signal<Tab>('days');
+  protected readonly tab = signal<Tab>('travel');
   protected readonly dayN = signal(this.todayN() || 1);
 
   protected readonly checked = signal<Record<string, boolean>>(this.load());
@@ -43,22 +43,17 @@ export class App {
   );
   protected readonly credits = signal<Credit[]>([]);
 
-  private observer?: IntersectionObserver;
+  private dayObserver?: IntersectionObserver;
+  private partObserver?: IntersectionObserver;
 
   constructor() {
-    this.readHash(false);
     afterNextRender(() => {
       const top = document.querySelector('.top') as HTMLElement | null;
       const setTop = () => top && document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
       setTop();
       window.addEventListener('resize', setTop);
-      this.watchDays();
-      const n = this.dayN();
-      if (this.tab() === 'days' && (location.hash.startsWith('#day') || this.todayN())) this.scrollToDay(n, 'auto');
-    });
-    // Re-attach the observer whenever the days tab is shown again.
-    effect(() => {
-      if (this.tab() === 'days') setTimeout(() => this.watchDays());
+      this.watch();
+      this.readHash(false);
     });
     setInterval(() => this.now.set(Date.now()), 60 * 60 * 1000);
     fetch('img/credits.json')
@@ -67,62 +62,66 @@ export class App {
       .catch(() => {});
   }
 
-  protected readHash(scroll: boolean) {
+  /** #day3 jumps to a day, #car / #travel / #days / #prep jump to a part of the page. */
+  protected readHash(smooth: boolean) {
     const h = location.hash.replace('#', '');
     const m = /^day(\d+)$/.exec(h);
+    const behavior: ScrollBehavior = smooth ? 'smooth' : 'auto';
     if (m && +m[1] >= 1 && +m[1] <= 10) {
-      this.tab.set('days');
-      this.dayN.set(+m[1]);
-      if (scroll) setTimeout(() => this.scrollToDay(+m[1]));
+      this.scrollToDay(+m[1], behavior);
     } else if ((TABS as string[]).includes(h)) {
-      this.tab.set(h as Tab);
+      this.scrollToPart(h as Tab, behavior);
     }
   }
 
   protected go(t: Tab) {
     this.tab.set(t);
-    this.setHash(t === 'days' ? '' : t);
-    window.scrollTo({ top: 0 });
+    this.scrollToPart(t);
   }
 
-  /** Jump to a day in the scrolling list (switching to the days tab if needed). */
   protected pick(n: number) {
     if (n < 1 || n > 10) return;
     this.dayN.set(n);
-    if (this.tab() !== 'days') {
-      this.tab.set('days');
-      setTimeout(() => this.scrollToDay(n));
-    } else {
-      this.scrollToDay(n);
-    }
+    this.scrollToDay(n);
+  }
+
+  private headerOffset(withChips: boolean) {
+    const top = (document.querySelector('.top') as HTMLElement)?.offsetHeight ?? 0;
+    const chips = withChips ? ((document.querySelector('.chips') as HTMLElement)?.offsetHeight ?? 0) : 0;
+    return top + chips + 8;
+  }
+
+  private scrollToPart(t: Tab, behavior: ScrollBehavior = 'smooth') {
+    const el = document.getElementById(t);
+    if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - this.headerOffset(false), behavior });
   }
 
   private scrollToDay(n: number, behavior: ScrollBehavior = 'smooth') {
     const el = document.getElementById('day' + n);
     if (!el) return;
-    const offset = (document.querySelector('.top') as HTMLElement)?.offsetHeight ?? 0;
-    const chips = (document.querySelector('.chips') as HTMLElement)?.offsetHeight ?? 0;
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset - chips - 8, behavior });
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - this.headerOffset(true), behavior });
   }
 
-  /** Highlight the chip of the day currently on screen. */
-  private watchDays() {
-    this.observer?.disconnect();
+  /** Keep the bottom bar and the day chips in sync with what is on screen. */
+  private watch() {
     if (typeof IntersectionObserver === 'undefined') return;
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          const n = Number((e.target as HTMLElement).dataset['n']);
-          if (n && n !== this.dayN()) {
-            this.dayN.set(n);
-            document.getElementById('chip' + n)?.scrollIntoView({ inline: 'center', block: 'nearest' });
-          }
+    const band = { rootMargin: '-45% 0px -50% 0px' };
+    this.dayObserver = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const n = Number((e.target as HTMLElement).dataset['n']);
+        if (n && n !== this.dayN()) {
+          this.dayN.set(n);
+          document.getElementById('chip' + n)?.scrollIntoView({ inline: 'center', block: 'nearest' });
         }
-      },
-      { rootMargin: '-45% 0px -50% 0px' },
-    );
-    document.querySelectorAll('article.day').forEach((el) => this.observer!.observe(el));
+      }
+    }, band);
+    document.querySelectorAll('article.day').forEach((el) => this.dayObserver!.observe(el));
+    this.partObserver = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) this.tab.set(e.target.id as Tab);
+    }, band);
+    document.querySelectorAll('section.part').forEach((el) => this.partObserver!.observe(el));
   }
 
   protected mapUrl(q: string) {
@@ -136,11 +135,6 @@ export class App {
     } catch {}
   }
 
-  private setHash(h: string) {
-    try {
-      history.replaceState(null, '', h ? '#' + h : location.pathname + location.search);
-    } catch {}
-  }
 
   private load(): Record<string, boolean> {
     try {

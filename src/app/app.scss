@@ -118,6 +118,8 @@
 
 /* ---------- Sections ---------- */
 .sec { font-size: 1.35rem; margin: 1.2rem 0 .7rem; }
+.part { scroll-margin-top: var(--top-h, 4.4rem); padding-top: .4rem; }
+.part + .part { margin-top: 1.4rem; border-top: 1px solid var(--line); }
 .sec-row { display: flex; justify-content: space-between; align-items: baseline; .count { font-weight: 700; color: var(--glacier); font-variant-numeric: tabular-nums; } }
 .muted { color: var(--muted); font-size: .92rem; }
 .small { color: var(--muted); font-size: .82rem; margin: .6rem 0 0; }
