@@ -1,20 +1,12 @@
-/* Dark app mode: a single deliberate dark look, like a phone app. */
+/* Light "sky" palette (no red, no green). --a = Flachau / primary, --b = Kaprun / secondary. */
 :root {
-  --bg: #0a1314;
-  --surface: #121f20;
-  --raised: #1a2b2c;
-  --line: #253a3b;
-  --ink: #e9f2f0;
-  --muted: #8ea6a1;
-  --glacier: #63d6de;
-  --pine: #7fd194;
-  --sun: #f6bd55;
-  --danger: #ff8d84;
-  --snow: #a9bdf5;
-  --on-accent: #062023;
+  --bg: #ffffff; --surface: #ffffff; --raised: #e6eef7; --line: #b9cde3;
+  --ink: #0f2238; --muted: #46586d;
+  --a: #1677c8; --b: #2d45b0; --sun: #f0a500; --must: #6b2fbf; --snow: #2d45b0;
+  --on-accent: #ffffff; --mtn: #a9cbea; --mtn2: #d4e5f5;
   --font-display: 'Secular One', 'Assistant', system-ui, sans-serif;
   --font-body: 'Assistant', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { background: var(--bg); }
@@ -22,7 +14,8 @@ body {
   margin: 0;
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 17px;
+  font-size: 17.5px;
+  font-weight: 500;
   line-height: 1.55;
   -webkit-tap-highlight-color: transparent;
 }
