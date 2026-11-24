@@ -138,6 +138,29 @@
 .stay b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .maplink { font-weight: 600; text-decoration: none; margin-top: auto; }
 
+/* ---------- Car ---------- */
+.car-card { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--sun); border-radius: 14px; padding: 1rem 1.1rem; }
+.car-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .5rem 1rem; }
+.car-head h3 { font-size: 1.3rem; }
+.car-co { font-weight: 700; color: var(--sun); font-size: .9rem; }
+.car-note { color: var(--muted); font-size: .92rem; }
+.car-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: .6rem 1.5rem; margin-top: .9rem; }
+.car-times div { display: grid; min-width: 0; }
+.car-times .wide { grid-column: 1 / -1; }
+.car-times .lbl { font-size: .8rem; color: var(--muted); }
+.car-times b { font-variant-numeric: tabular-nums; }
+.car-grid { display: grid; gap: 1rem; margin-top: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.car-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.1rem; min-width: 0; }
+.car-box h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+.car-box ul { margin: 0; padding-inline-start: 1.2rem; display: grid; gap: .3rem; }
+.car-box ul.ok { list-style: none; padding: 0; }
+.car-box ul.ok li::before { content: '✓'; color: var(--pine); font-weight: 700; margin-inline-end: .5rem; }
+.mt-s { margin-top: 1rem; }
+.tablebox.flat { border: 0; border-radius: 0; }
+table.prices { min-width: 0; }
+table.prices td { padding: .5rem .2rem; }
+table.prices .num { text-align: end; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+
 /* ---------- Bases ---------- */
 .base { padding-block: 3rem 1rem; }
 .base.k { background: linear-gradient(to bottom, var(--lake-soft), var(--bg) 30rem); }

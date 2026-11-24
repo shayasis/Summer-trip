@@ -22,6 +22,7 @@
 <nav class="daynav" aria-label="ימי הטיול">
   <div class="wrap daynav-in">
     <a href="#trip">טיסות ומלונות</a>
+    <a href="#car">רכב</a>
     @for (d of days; track d.n) {
       <a [href]="'#d' + d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n">
         <span class="dn">{{ d.n }}</span>{{ d.date }}
@@ -81,6 +82,57 @@
       }
     </div>
 
+  </section>
+
+
+  <section class="wrap block" id="car">
+    <h2>השכרת רכב</h2>
+    <div class="car-card">
+      <div class="car-head">
+        <div>
+          <div class="car-co">{{ car.company }} · גרמניה</div>
+          <h3>{{ car.car }}</h3>
+          <div class="car-note">{{ car.carNote }}</div>
+        </div>
+        <a class="maplink" [href]="mapUrl(car.mapQuery)" target="_blank" rel="noopener">הדלפק במפות ←</a>
+      </div>
+      <div class="car-times">
+        <div><span class="lbl">איסוף</span><b>{{ car.pickup.date }} · {{ car.pickup.time }}</b></div>
+        <div><span class="lbl">החזרה</span><b>{{ car.dropoff.date }} · {{ car.dropoff.time }}</b></div>
+        <div class="wide"><span class="lbl">מקום</span><b>{{ car.location }}</b></div>
+      </div>
+      <div class="tip"><b>לבדוק:</b> בשובר ההחזרה היא ב-13.8 ב-10:00, אבל הטיסה חזרה ב-12.8 ב-20:00 ומתכננים להחזיר ב-16:30. כדאי לוודא מול Europcar שהחזרה מוקדמת לא תעלה כסף.</div>
+    </div>
+
+    <div class="car-grid">
+      <div class="car-box">
+        <h3>מה מביאים לדלפק</h3>
+        <ul>@for (b of car.bring; track b) { <li>{{ b }}</li> }</ul>
+      </div>
+      <div class="car-box">
+        <h3>כלול במחיר</h3>
+        <ul class="ok">@for (b of car.included; track b) { <li>{{ b }}</li> }</ul>
+      </div>
+    </div>
+
+    <div class="car-box mt-s">
+      <h3>תשלום בדלפק, לפי הצורך</h3>
+      <div class="tablebox flat">
+        <table class="prices">
+          <tbody>
+            @for (p of car.payAtPickup; track p.what) {
+              <tr><td>{{ p.what }}</td><td class="num">{{ p.price }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="small">המחירים לפני מע"מ של 19%. כיסא לילד: בוסטר מתאים לגילאי 7–9 (15–30 ק"ג).</p>
+    </div>
+
+    <div class="car-box mt-s">
+      <h3>כללים שחשוב לדעת</h3>
+      <ul>@for (r of car.rules; track r) { <li>{{ r }}</li> }</ul>
+    </div>
   </section>
 
   <section class="base f" id="flachau">
