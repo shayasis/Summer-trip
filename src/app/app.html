@@ -81,16 +81,6 @@
       }
     </div>
 
-    <div class="changes">
-      <button type="button" (click)="changesOpen.set(!changesOpen())" [attr.aria-expanded]="changesOpen()">
-        מה השתנה לעומת הגרסה הקודמת <span class="chev" [class.open]="changesOpen()">▾</span>
-      </button>
-      @if (changesOpen()) {
-        <ul>
-          @for (c of changes; track c) { <li>{{ c }}</li> }
-        </ul>
-      }
-    </div>
   </section>
 
   <section class="base f" id="flachau">

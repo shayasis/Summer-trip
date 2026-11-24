@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  CHANGES, CHECKLIST, DAYS, DEPARTURE, FLIGHTS, HOTELS, WEATHER_ROWS, Day,
+  CHECKLIST, DAYS, DEPARTURE, FLIGHTS, HOTELS, WEATHER_ROWS, Day,
 } from './trip-data';
 
 interface Credit { title: string; author: string; license: string; url: string }
@@ -17,7 +17,6 @@ const STORE_KEY = 'austria-2027-checklist';
 export class App {
   protected readonly flights = FLIGHTS;
   protected readonly hotels = HOTELS;
-  protected readonly changes = CHANGES;
   protected readonly weatherRows = WEATHER_ROWS;
   protected readonly checklist = CHECKLIST;
   protected readonly flachauDays = DAYS.filter((d) => d.base === 'flachau');
@@ -40,7 +39,6 @@ export class App {
   protected readonly doneCount = computed(
     () => this.checklist.filter((c) => this.checked()[c.id]).length,
   );
-  protected readonly changesOpen = signal(false);
   protected readonly credits = signal<Record<string, Credit>>({});
 
   constructor() {

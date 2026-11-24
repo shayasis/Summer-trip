@@ -138,23 +138,6 @@
 .stay b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .maplink { font-weight: 600; text-decoration: none; margin-top: auto; }
 
-/* ---------- Changes ---------- */
-.changes {
-  margin-top: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  button {
-    all: unset; box-sizing: border-box; cursor: pointer;
-    display: flex; justify-content: space-between; width: 100%;
-    padding: .8rem 1.1rem; font-weight: 700;
-    &:focus-visible { outline: 3px solid var(--lake); }
-  }
-  .chev { transition: transform .2s; &.open { transform: rotate(180deg); } }
-  ul { margin: 0; padding: 0 2.3rem 1rem 1.1rem; }
-  li { margin-block: .2rem; }
-}
-
 /* ---------- Bases ---------- */
 .base { padding-block: 3rem 1rem; }
 .base.k { background: linear-gradient(to bottom, var(--lake-soft), var(--bg) 30rem); }
