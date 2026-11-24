@@ -1,171 +1,217 @@
-<header class="cover">
-  <img src="img/hero.jpg" alt="אגם צל ליד קפרון" />
-  <div class="cover-shade"></div>
-  <div class="cover-in">
-    <div class="issue">גיליון קיץ · אוגוסט 2027</div>
-    <h1>פלאכו<br />וקפרון</h1>
-    <div class="facts"><span><b>12</b> אנשים</span><span><b>6</b> ילדים</span><span><b>3</b> רכבים</span><span><b>9</b> לילות</span></div>
-    <p class="dek">עשרה ימים בזלצבורגרלנד: קרחונים, מכרות מלח, אגמים ומפלים. מסלול לשלוש משפחות ושישה ילדים.</p>
+<header class="top">
+  <div class="top-in">
+    <div>
+      <div class="top-sub">אוסטריה · 3–12.8.2027</div>
+      <h1>פלאכו וקפרון</h1>
+    </div>
     @if (todayN()) {
-      <a class="cd" [href]="'#d' + todayN()">אנחנו בטיול! יום {{ todayN() }} ←</a>
+      <button type="button" class="pill live" (click)="pick(todayN()); go('days')">היום: יום {{ todayN() }}</button>
     } @else if (daysToGo() > 0) {
-      <div class="cd"><b>{{ daysToGo() }}</b> ימים לטיסה</div>
+      <div class="pill"><b>{{ daysToGo() }}</b> ימים לטיסה</div>
     }
   </div>
 </header>
 
-<section class="mapband">
-  <div class="wrap">
-    <svg viewBox="0 0 640 210" role="img" aria-label="מינכן, פלאכו 4 לילות, קפרון 5 לילות, ובחזרה למינכן">
-      <path class="mtn" d="M0 210 L70 120 L120 160 L190 70 L250 140 L320 60 L390 150 L450 90 L520 150 L580 100 L640 160 L640 210Z"/>
-      <path class="snow" d="M190 70 L172 93 L190 88 L205 96Z M320 60 L302 84 L320 78 L338 86Z M450 90 L436 108 L452 104 L464 110Z"/>
-      <path class="route" d="M590 60 C 520 40, 470 150, 400 140 S 260 170, 220 120 S 120 40, 50 60"/>
-      <g class="pin" transform="translate(590 60)"><circle r="9"/><text y="-16">מינכן</text></g>
-      <g class="pin p1" transform="translate(400 140)"><circle r="12"/><text y="-20">פלאכו</text><text class="s" y="32">4 לילות</text></g>
-      <g class="pin p2" transform="translate(220 120)"><circle r="12"/><text y="-20">קפרון</text><text class="s" y="32">5 לילות</text></g>
-      <g class="pin" transform="translate(50 60)"><circle r="9"/><text y="-16">מינכן</text></g>
-    </svg>
-  </div>
-</section>
+<main class="screen">
+  @switch (tab()) {
+    @case ('days') {
+      <nav class="chips" aria-label="בחירת יום">
+        @for (d of days; track d.n) {
+          <button type="button" class="chip" [id]="'chip' + d.n"
+                  [class.on]="dayN() === d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n"
+                  (click)="pick(d.n)" [attr.aria-pressed]="dayN() === d.n">
+            <span class="c-wd">{{ d.weekday }}</span>
+            <span class="c-d">{{ d.date }}</span>
+          </button>
+        }
+      </nav>
 
-<nav class="chips" aria-label="קפיצה">
-  <div class="wrap chips-in">
-    <a href="#info">טיסות ומלונות</a>
-    <a href="#car">רכב</a>
-    @for (d of days; track d.n) { <a [href]="'#d' + d.n" class="cday" [class.k]="d.base === 'kaprun'">{{ d.date }}</a> }
-    <a href="#weather">מזג אוויר</a>
-    <a href="#checklist">צ'קליסט</a>
-  </div>
-</nav>
-
-<section class="wrap contents">
-  <h2 class="label">בגיליון</h2>
-  <ol class="toc">
-    @for (d of days; track d.n) {
-      <li><a [href]="'#d' + d.n" [class.k]="d.base === 'kaprun'">
-        <span class="toc-n">{{ d.n }}</span>
-        <span class="toc-t">{{ d.title }}</span>
-        <span class="toc-d">{{ d.date }}</span>
-      </a></li>
-    }
-  </ol>
-</section>
-
-<section class="wrap info" id="info">
-  <h2 class="label">כרטיסים ומלונות</h2>
-  <div class="grid2">
-    @for (f of flights; track f.number) {
-      <article class="tix">
-        <div class="tix-main">
-          <div class="tix-no">{{ f.number }}</div>
-          <div class="tix-route" dir="ltr"><b>{{ f.from.code }}</b><span>✈</span><b>{{ f.to.code }}</b></div>
-          <div class="tix-times">
-            <div><small>המראה</small>{{ f.from.time }}<em>טרמינל {{ f.from.terminal }}</em></div>
-            <div><small>נחיתה</small>{{ f.to.time }}@if (f.to.nextDay) {<sup>+1</sup>}<em>טרמינל {{ f.to.terminal }}</em></div>
+      @let d = day();
+      <article class="day" [class.k]="d.base === 'kaprun'" (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
+        <div class="photo">
+          @for (x of [d]; track x.n) { <img [src]="x.image" [alt]="x.place" /> }
+          <div class="shade"></div>
+          <div class="ph-top">
+            <span class="base-badge">{{ d.base === 'flachau' ? 'בסיס פלאכו' : 'בסיס קפרון' }}</span>
+            <span class="dayno">יום {{ d.n }}/10</span>
+          </div>
+          <div class="ph-text">
+            <div class="place">{{ d.place }}</div>
+            <h2>{{ d.title }}</h2>
           </div>
         </div>
-        <div class="tix-stub"><span>{{ f.date }}</span></div>
-      </article>
-    }
-    @for (h of hotels; track h.name) {
-      <article class="hotel" [class.k]="h.base === 'kaprun'">
-        <div class="kicker">{{ h.town }} · {{ h.checkIn }}–{{ h.checkOut }} · {{ h.nights }} לילות</div>
-        <h3 dir="ltr">{{ h.name }}</h3>
-        <a [href]="mapUrl(h.mapQuery)" target="_blank" rel="noopener">איך מגיעים ←</a>
-      </article>
-    }
-  </div>
-</section>
 
-<section class="wrap info" id="car">
-  <h2 class="label">הרכב</h2>
-  <article class="carbox">
-    <div class="car-top">
-      <div>
-        <div class="kicker">{{ car.company }} · {{ car.carNote }}</div>
-        <h3>{{ car.car }}</h3>
-        <p>איסוף {{ car.pickup.date }} ב-{{ car.pickup.time }} · {{ car.location }}</p>
-      </div>
-      <a class="btn" [href]="mapUrl(car.mapQuery)" target="_blank" rel="noopener">לדלפק ←</a>
-    </div>
-    <div class="note"><b>לבדוק</b><span>בשובר ההחזרה ב-13.8 ב-10:00, אבל טסים ב-12.8 ב-20:00. לוודא מול Europcar.</span></div>
-    <div class="grid3">
-      <div><h4>מביאים לדלפק</h4><ul>@for (b of car.bring; track b) { <li>{{ b }}</li> }</ul></div>
-      <div><h4>כלול במחיר</h4><ul class="ok">@for (b of car.included; track b) { <li>{{ b }}</li> }</ul></div>
-      <div><h4>משלמים בדלפק</h4><ul>@for (p of car.payAtPickup; track p.what) { <li>{{ p.what }} <b>{{ p.price }}</b></li> }</ul></div>
-    </div>
-    <details><summary>כללים שחשוב לדעת</summary><ul>@for (r of car.rules; track r) { <li>{{ r }}</li> }</ul></details>
-  </article>
-</section>
-
-@for (d of days; track d.n) {
-  @if (d.n === 1 || d.n === 5) {
-    <div class="part wrap" [class.k]="d.n === 5">
-      <span>{{ d.n === 1 ? 'חלק ראשון' : 'חלק שני' }}</span>
-      <h2>{{ d.n === 1 ? 'פלאכו' : 'קפרון' }}</h2>
-      <span>{{ d.n === 1 ? '3.8–7.8 · ארבעה לילות' : '7.8–12.8 · חמישה לילות' }}</span>
-    </div>
-  }
-  <article class="story" [id]="'d' + d.n" [class.k]="d.base === 'kaprun'" [class.today]="todayN() === d.n">
-    <figure class="bleed">
-      <img [src]="d.image" [alt]="d.place" loading="lazy" />
-      <div class="stamp" aria-hidden="true"><div class="stamp-in"><b>{{ d.n }}</b><span>{{ d.date }}</span></div></div>
-    </figure>
-    <header class="band">
-      <div class="wrap band-in">
-        <div class="band-date"><span>{{ d.weekday }}</span><b>{{ d.date }}</b></div>
-        <div class="band-t">
-          <div class="band-k">יום {{ d.n }} · {{ d.place }}</div>
-          <h2>{{ d.title }}</h2>
-        </div>
-      </div>
-    </header>
-    <div class="wrap story-in">
-      @if (d.weather || d.flexible) {
-        <div class="flags">
-          @if (d.weather) { <span [class]="'flag f-' + d.weather.level">{{ d.weather.label }}</span> }
-          @if (d.flexible) { <span class="flag f-flex">יום הרים גמיש</span> }
-        </div>
-      }
-      <ol class="sched">
-        @for (s of d.slots; track $index) {
-          <li><span class="time">{{ s.when }}</span><div class="act">{{ s.what }}@if (s.note) {<em>{{ s.note }}</em>}</div></li>
+        @if (d.weather || d.flexible) {
+          <div class="tags">
+            @if (d.weather) { <span [class]="'tag t-' + d.weather.level">{{ d.weather.label }}</span> }
+            @if (d.flexible) { <span class="tag t-flex">יום הרים גמיש</span> }
+          </div>
         }
-      </ol>
-      @if (d.tip) { <div class="note"><b>{{ d.tip.label }}</b><span>{{ d.tip.text }}</span></div> }
-    </div>
-  </article>
-}
 
-<section class="wrap back" id="weather">
-  <h2 class="label">ואם יורד גשם?</h2>
-  <p class="lede">בודקים תחזית כל ערב, ומזיזים ימי הרים לימים הבהירים ביותר.</p>
-  <div class="wx">
-    @for (r of weatherRows; track r.day) {
-      <a class="wx-i" [href]="'#d' + r.day">
-        <span class="wx-n">{{ r.day }}</span>
-        <span class="wx-b"><b>{{ r.name }}</b><span>{{ r.plan }}</span></span>
-        <span [class]="'flag f-' + r.level">{{ r.need }}</span>
-      </a>
+        <ol class="tl">
+          @for (s of d.slots; track $index) {
+            <li>
+              <span class="when">{{ s.when }}</span>
+              <div class="what">
+                {{ s.what }}
+                @if (s.note) { <span class="note">{{ s.note }}</span> }
+              </div>
+            </li>
+          }
+        </ol>
+
+        @if (d.tip) {
+          <div class="tip"><b>{{ d.tip.label }}</b>{{ d.tip.text }}</div>
+        }
+
+        <div class="pager">
+          <button type="button" (click)="pick(d.n - 1)" [disabled]="d.n === 1">→ יום {{ d.n - 1 || '' }}</button>
+          <span class="dots" aria-hidden="true">
+            @for (x of days; track x.n) { <i [class.on]="x.n === d.n"></i> }
+          </span>
+          <button type="button" (click)="pick(d.n + 1)" [disabled]="d.n === 10">יום {{ d.n < 10 ? d.n + 1 : '' }} ←</button>
+        </div>
+      </article>
     }
-  </div>
-  <p class="small">יום גשום בקפרון בלי אפשרות להחלפה: בריכה מקורה באזור.</p>
-</section>
 
-<section class="wrap back" id="checklist">
-  <h2 class="label">לא לשכוח <span class="cnt">{{ doneCount() }}/{{ checklist.length }}</span></h2>
-  <ul class="checks">
-    @for (c of checklist; track c.id) {
-      <li><label [for]="'c-' + c.id"><input type="checkbox" [id]="'c-' + c.id" [checked]="!!checked()[c.id]" (change)="toggle(c.id)" /><span>{{ c.text }}</span></label></li>
+    @case ('travel') {
+      <h2 class="sec">טיסות</h2>
+      @for (f of flights; track f.number) {
+        <article class="pass">
+          <div class="pass-head"><span class="fno">{{ f.number }}</span><span>{{ f.date }}</span></div>
+          <div class="pass-leg">
+            <div class="ap">
+              <div class="code">{{ f.from.code }}</div>
+              <div class="city">{{ f.from.city }}</div>
+              <div class="time">{{ f.from.time }}</div>
+              <div class="term">טרמינל {{ f.from.terminal }}</div>
+            </div>
+            <div class="mid"><span class="dur">{{ f.duration }}</span><span class="line"></span></div>
+            <div class="ap">
+              <div class="code">{{ f.to.code }}</div>
+              <div class="city">{{ f.to.city }}</div>
+              <div class="time">{{ f.to.time }}@if (f.to.nextDay) {<sup>+1</sup>}</div>
+              <div class="term">טרמינל {{ f.to.terminal }}</div>
+            </div>
+          </div>
+        </article>
+      }
+
+      <h2 class="sec">מלונות</h2>
+      @for (h of hotels; track h.name) {
+        <article class="card hotel" [class.k]="h.base === 'kaprun'">
+          <div class="h-town">{{ h.town }} · {{ h.nights }} לילות</div>
+          <h3 dir="ltr">{{ h.name }}</h3>
+          <div class="kv">
+            <div><span>צ'ק-אין</span><b>{{ h.checkIn }}</b></div>
+            <div><span>צ'ק-אאוט</span><b>{{ h.checkOut }}</b></div>
+          </div>
+          <a class="btn" [href]="mapUrl(h.mapQuery)" target="_blank" rel="noopener">ניווט למלון</a>
+        </article>
+      }
     }
-  </ul>
-</section>
 
-<footer class="wrap colophon">
-  <p>נסיעה טובה!</p>
-  @if (creditList().length) {
-    <details><summary>צילומים: Wikimedia Commons</summary>
-      <ul dir="ltr">@for (c of creditList(); track c.url) { <li><a [href]="c.url" target="_blank" rel="noopener">{{ c.title }}</a> · {{ c.author }} · {{ c.license }}</li> }</ul>
-    </details>
+    @case ('car') {
+      <h2 class="sec">השכרת רכב</h2>
+      <article class="card car">
+        <div class="h-town sun">{{ car.company }} · גרמניה</div>
+        <h3>{{ car.car }}</h3>
+        <div class="muted">{{ car.carNote }}</div>
+        <div class="kv">
+          <div><span>איסוף</span><b>{{ car.pickup.date }} · {{ car.pickup.time }}</b></div>
+          <div><span>החזרה</span><b>{{ car.dropoff.date }} · {{ car.dropoff.time }}</b></div>
+        </div>
+        <div class="loc">{{ car.location }}</div>
+        <a class="btn" [href]="mapUrl(car.mapQuery)" target="_blank" rel="noopener">ניווט לדלפק</a>
+        <div class="tip"><b>לבדוק</b>בשובר ההחזרה ב-13.8 ב-10:00, אבל הטיסה חזרה ב-12.8 ב-20:00 ומתכננים להחזיר ב-16:30. כדאי לוודא מול Europcar שהחזרה מוקדמת לא עולה כסף.</div>
+      </article>
+
+      <article class="card">
+        <h3>מה מביאים לדלפק</h3>
+        <ul class="list">@for (b of car.bring; track b) { <li>{{ b }}</li> }</ul>
+      </article>
+      <article class="card">
+        <h3>כלול במחיר</h3>
+        <ul class="list ok">@for (b of car.included; track b) { <li>{{ b }}</li> }</ul>
+      </article>
+      <article class="card">
+        <h3>תשלום בדלפק, לפי הצורך</h3>
+        <div class="rows">
+          @for (p of car.payAtPickup; track p.what) {
+            <div class="row"><span>{{ p.what }}</span><b>{{ p.price }}</b></div>
+          }
+        </div>
+        <p class="small">לפני מע"מ של 19%. לילדים בגילאי 7–9 מתאים בוסטר (15–30 ק"ג).</p>
+      </article>
+      <article class="card">
+        <h3>כללים שחשוב לדעת</h3>
+        <ul class="list">@for (r of car.rules; track r) { <li>{{ r }}</li> }</ul>
+      </article>
+    }
+
+    @case ('prep') {
+      <div class="sec-row">
+        <h2 class="sec">צ'קליסט</h2>
+        <span class="count">{{ doneCount() }}/{{ checklist.length }}</span>
+      </div>
+      <div class="bar"><span [style.width.%]="(doneCount() / checklist.length) * 100"></span></div>
+      <ul class="checks">
+        @for (c of checklist; track c.id) {
+          <li>
+            <label [for]="'c-' + c.id" [class.done]="!!checked()[c.id]">
+              <input type="checkbox" [id]="'c-' + c.id" [checked]="!!checked()[c.id]" (change)="toggle(c.id)" />
+              <span class="box" aria-hidden="true"></span>
+              <span>{{ c.text }}</span>
+            </label>
+          </li>
+        }
+      </ul>
+      <p class="small">הסימונים נשמרים בטלפון שלך בלבד.</p>
+
+      <h2 class="sec">גיבוי למזג אוויר</h2>
+      <p class="muted">בודקים תחזית כל ערב ומזיזים ימי הרים לימים הבהירים.</p>
+      @for (r of weatherRows; track r.day) {
+        <button type="button" class="card wx" (click)="pick(r.day); go('days')">
+          <span class="wx-day">{{ r.day }}</span>
+          <span class="wx-body">
+            <b>{{ r.name }}</b>
+            <span>{{ r.plan }}</span>
+          </span>
+          <span [class]="'tag t-' + r.level">{{ r.need }}</span>
+        </button>
+      }
+      <p class="small">יום גשום בקפרון בלי אפשרות להחלפה: בריכה מקורה באזור.</p>
+
+      @if (credits().length) {
+        <details class="credits">
+          <summary>קרדיט לתמונות</summary>
+          <ul dir="ltr">
+            @for (c of credits(); track c.url) {
+              <li><a [href]="c.url" target="_blank" rel="noopener">{{ c.title }}</a> · {{ c.author }} · {{ c.license }}</li>
+            }
+          </ul>
+        </details>
+      }
+    }
   }
-</footer>
+</main>
+
+<nav class="tabbar" aria-label="ניווט">
+  <button type="button" [class.on]="tab() === 'days'" (click)="go('days')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span>ימים</span>
+  </button>
+  <button type="button" [class.on]="tab() === 'travel'" (click)="go('travel')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 13.5 21 7l-1 3-7 3 1.5 7-2.5 1-3-6.5-4 1.5L3 18l1-4.5z"/></svg>
+    <span>טיסות ומלון</span>
+  </button>
+  <button type="button" [class.on]="tab() === 'car'" (click)="go('car')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16V11l2-5h12l2 5v5"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="13" r="1"/><circle cx="16.5" cy="13" r="1"/></svg>
+    <span>רכב</span>
+  </button>
+  <button type="button" [class.on]="tab() === 'prep'" (click)="go('prep')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>
+    <span>הכנות</span>
+    @if (doneCount() < checklist.length) { <i class="badge">{{ checklist.length - doneCount() }}</i> }
+  </button>
+</nav>
