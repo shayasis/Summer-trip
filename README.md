@@ -4,5 +4,5 @@
 
 - הרצה מקומית: `npm install` ואז `npm start`
 - כל התוכן (ימים, טיסות, מלונות, צ'קליסט) נמצא בקובץ אחד: `src/app/trip-data.ts`
-- כל push לענף הראשי מעלה את האתר אוטומטית ל-GitHub Pages (`.github/workflows/deploy.yml`)
+- האתר: https://shayasis.github.io/Summer-trip/ — כל push לענף הראשי בונה ומעדכן אותו אוטומטית (ענף `gh-pages`)
 - התמונות מ-Wikimedia Commons; הקרדיטים ב-`public/img/credits.json`
