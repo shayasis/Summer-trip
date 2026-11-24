@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+
 import {
   CAR, CHECKLIST, DAYS, DEPARTURE, FLIGHTS, HOTELS, WEATHER_ROWS, Day,
 } from './trip-data';
@@ -10,7 +10,7 @@ const STORE_KEY = 'austria-2027-checklist';
 
 @Component({
   selector: 'app-root',
-  imports: [NgTemplateOutlet],
+
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
